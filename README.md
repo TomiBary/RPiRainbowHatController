@@ -28,3 +28,6 @@ While the original goal was to use an abandoned AndroidThings device for this pr
 - Install required libraries [requirements.txt](requirements.txt)
 - Configure your API keys and other settings in private.yml (keep this file secure!).
 - Run the project using `python3 RPiRainbowHatController.py`.
+
+## Sample output
+![GIF](rpi-rainbowhat-sample.gif)
