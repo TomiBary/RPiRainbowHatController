@@ -24,7 +24,7 @@ def display_crypto_prices_job(*args):
 
 
 def display_time_job(*args):
-    current_time = dt.now().strftime('%H.%M')  # time.strftime('%H.%M', time.gmtime())
+    current_time = dt.now().strftime('%H.%M')
     print("Time:" + current_time)
     rh_display_text(current_time)
     time.sleep(1.2)
@@ -34,7 +34,7 @@ def display_time_job(*args):
 
 
 def display_date_job(*args):
-    current_date = dt.now().strftime('%d.%m.')  # time.strftime('%d.%m.', time.gmtime())
+    current_date = dt.now().strftime('%d.%m.')
     print("Date:" + current_date)
     rh_display_text(current_date)
     time.sleep(1.2)
@@ -83,22 +83,17 @@ class Project:
             self.job_scheduler.add_job(Job.pause())
 
     def create_jobs(self):
-        # Fetch shouldn't be repeated
         self.fetch_crypto_prices_jobs = Job("Fetch prices", False, fetch_crypto_prices_job, (1, self.job_repeat_count))
-        self.display_crypto_prices_jobs = Job("Display prices", False, display_crypto_prices_job, (4, ))
-        self.display_time_jobs = Job("Display time", False, display_time_job, (2,)) * self.job_repeat_count
-        self.display_date_jobs = Job("Display date", False, display_date_job, (3,)) * self.job_repeat_count
+        self.display_crypto_prices_jobs = Job("Display prices", False, display_crypto_prices_job)
+        self.display_time_jobs = Job("Display time", False, display_time_job) * self.job_repeat_count
+        self.display_date_jobs = Job("Display date", False, display_date_job) * self.job_repeat_count
         # Needs to be run at the start, to get the current prices for display job
         self.job_scheduler.add_job(self.fetch_crypto_prices_jobs)
 
     def schedule_jobs(self):
         self.create_jobs()
         if self.run_test_jobs:
-            # TODO schedule jobs to the second scheduler to call them instantly. self.job_scheduler.add_job(Job.pause(10))
-            schedule.every().minute.at(":30").do(self.schedule_fetch_crypto_prices_job)
-            schedule.every().minute.at(":00").do(self.schedule_display_crypto_prices_job)
-            schedule.every().minute.at(":05").do(self.schedule_display_date_job)
-            schedule.every().minute.at(":10").do(self.schedule_display_time_job)
+            self.job_scheduler.add_jobs(self.fetch_crypto_prices_jobs, self.display_crypto_prices_jobs, *self.display_time_jobs, *self.display_date_jobs)
         else:
             schedule.every(20).minutes.at(":00").do(self.schedule_fetch_crypto_prices_job)
             schedule.every(5).minutes.at(":30").do(self.schedule_display_crypto_prices_job)

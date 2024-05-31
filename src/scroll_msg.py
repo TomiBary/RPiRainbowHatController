@@ -29,8 +29,6 @@ class ScrollMessage:  # 4char alphanumeric scrolling message
                 dot_count += 1
             if len(result.replace(".", "")) >= self.max_char_len:
                 break
-        # if self.index >= len(self.text) - self.max_char_len:
-        #     self.index = 0
         self.index += 1
         return result
 

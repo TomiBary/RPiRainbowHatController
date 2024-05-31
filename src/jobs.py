@@ -16,8 +16,7 @@ class JobScheduler:
     def run(self):
         jobs_count = len(self.jobs)
         if jobs_count > 0:
-            print(f"Scheduled jobs: {jobs_count}, {list(map(lambda x: x.name + ' ', self.jobs))}")
-        # filtered_jobs[:] = [j for j in self.jobs if not x.is_finished]
+            print(f"Scheduled jobs: {jobs_count}, {list(map(lambda x: x.name, self.jobs))}")
         self.jobs[:] = [j for j in self.jobs if not j.is_finished]
         for job in self.jobs[:]:
             if job.run() is True:
@@ -31,7 +30,7 @@ class Job:
     def pause(seconds=1):
         return Job("Pause job", False, time.sleep, (seconds,))
 
-    def __init__(self, name, is_async, job_func, args):
+    def __init__(self, name, is_async, job_func, args=None):
         self.name = name
         self.is_async = is_async
         self.job_func = job_func
@@ -45,7 +44,10 @@ class Job:
         if self.is_async:
             return asyncio.run(self.job_func(*self.args))
         else:
-            return self.job_func(*self.args)
+            if self.args:
+                return self.job_func(*self.args)
+            else:
+                return self.job_func()
 
     def __mul__(self, multiplier):
         if not isinstance(multiplier, int) or multiplier < 0:
