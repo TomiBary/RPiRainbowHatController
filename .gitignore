@@ -1,0 +1,48 @@
+# Ignoruje soubory a adresáře, které obvykle vytvářejí editory kódu.
+/build/
+/dist/
+/venv/
+/.idea/
+/.vscode/
+*.pyc
+*.swp
+*.log
+
+.fabric/
+
+# Soukrome soubory
+private.yml
+
+# Běžné soubory
+*.pyc          # Kompilační soubory
+*.swp           # Soubory dočasné editory
+*.log           # Logovací soubory
+
+# Soubory virtuálního prostředí
+venv/           # Virtuální prostředí
+
+# Soubory specifické pro frameworky
+*.egg-info/     # Informace o vajíčkách
+*.egg           # Vaječná distribuce
+
+# Dokumentace
+docs/build/     # Generovaná dokumentace
+
+# Testování
+test_coverage/  # Pokrytí testováním
+.pytest/        # Soubory Pytest
+
+# CI/CD
+.travis/        # Travis CI
+.circleci/     # CircleCI
+.gitlab-ci-cd/ # GitLab CI/CD
+
+# Databáze
+*.sqlite3       # Databáze SQLite
+
+# Ide a editory
+.idea/          # IDEA
+.vscode/        # Visual Studio Code
+
+# Ostatní
+__pycache__/    # Pycache
