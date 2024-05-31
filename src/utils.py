@@ -1,6 +1,7 @@
 from math import log10, floor
 import crypto
 from scroll_msg import ScrollMessage
+import yaml
 # import rainbowhat as rh
 
 display_digits = 4
@@ -38,7 +39,9 @@ def get_display_text(prices):
 
 
 def get_crypto_price_message():
-    prices = crypto.fetch_prices()
+    with open('../private.yml', 'r') as f:
+        api_key = yaml.safe_load(f)['API_KEY_PROD']
+    prices = crypto.fetch_prices(api_key)
     txt = get_display_text(prices)
     return ScrollMessage(txt)
 
