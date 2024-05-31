@@ -2,7 +2,8 @@ from math import log10, floor
 import crypto
 from scroll_msg import ScrollMessage
 import yaml
-# import rainbowhat as rh
+
+import rainbowhat as rh
 
 display_digits = 4
 space = ' '
@@ -23,7 +24,7 @@ def format_price(price: float):
         4: 1,
     }
     whole_part = len(str(price).split('.')[0])
-    return f"{price / 10**(3 * magnitude):.{switcher.get(whole_part, 0)}f}{suffixes[magnitude]}"
+    return f"{price / 10 ** (3 * magnitude):.{switcher.get(whole_part, 0)}f}{suffixes[magnitude]}"
     # return '{:.{prec}f}'.format(price, prec=switcher.get(whole_part, 0))
 
 
@@ -39,14 +40,15 @@ def get_display_text(prices):
 
 
 def get_crypto_price_message():
-    with open('../private.yml', 'r') as f:
+    with open('private.yml', 'r') as f:
         api_key = yaml.safe_load(f)['API_KEY_PROD']
+
     prices = crypto.fetch_prices(api_key)
     txt = get_display_text(prices)
     return ScrollMessage(txt)
 
 
 def rh_display_text(text="    "):
-    # rh.display.print_number_str(text)
-    # rh.display.show()
-    pass
+    rh.display.print_number_str(text)
+    rh.display.show()
+    # pass

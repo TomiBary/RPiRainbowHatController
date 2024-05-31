@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 from fabric import *
 import os
 import yaml
@@ -27,7 +28,7 @@ try:
         user=private_data['USER_NAME'],
         connect_kwargs=connect_kwargs
     )
-
+    print(f"Connecting to {private_data['USER_NAME']}@{private_data['HOST_NAME']}")
     local_path = private_data['LOCAL_PROJECT_SRC_PATH']
     project_dir = private_data['REMOTE_PROJECT_PATH']
     local_main_file = "RPiRainbowHatController.py"
@@ -36,15 +37,12 @@ try:
     filenames = next(os.walk(local_path), (None, None, []))[2]
     print(f"Local files: {filenames}")
 
-    if c.is_connected:
-        print(sign)
-        for filename in filenames:
-            c.put(f"src/{filename}", project_dir)
+    for filename in filenames:
+        c.put(f"src/{filename}", project_dir)
+    with c.cd(project_dir):
+        c.run(f'ls -a')
+        c.run(f'chmod +x {local_main_file}')
+        c.run(f'python3 {local_main_file}', pty=True)
 
-        c.run(f'ls -a {project_dir}')
-        c.run(f'chmod +x {controller_full_path}')
-        c.run(f'python3 {controller_full_path}', pty=True)
-    else:
-        print(f"Connection to {private_data['USER_NAME']}@{private_data['HOST_NAME']} failed")
 except KeyboardInterrupt:
     pass

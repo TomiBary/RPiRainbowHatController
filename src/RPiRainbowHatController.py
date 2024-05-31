@@ -7,8 +7,9 @@ import touch_buttons
 
 rh.buzzer.midi_note(80, 0.1)
 
-p.run_test_jobs = False
+p.run_test_jobs = False  # True
 p.job_repeat_count = 3
+p.delay_between_text_letters = 0.2
 p.schedule_jobs()
 
 try:
