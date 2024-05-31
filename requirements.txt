@@ -1,0 +1,6 @@
+requests
+pyyaml
+fabric
+schedule
+rainbowhat
+asyncio
