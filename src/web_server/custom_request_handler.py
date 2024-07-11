@@ -2,11 +2,24 @@ import logging
 from http.server import BaseHTTPRequestHandler
 from urllib.parse import parse_qs
 
+import os, sys, json
 
 def get_file(filename):
-    with open("../resources/"+filename, 'r', encoding='utf-8') as f:
+    # Spojit rodičovský adresář s relativní cestou k souboru
+    full_file_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "resources/{file}".format(file=filename))
+    print(full_file_path)
+
+    with open(full_file_path, 'r', encoding='utf-8') as f:
         file = f.read()
     return file
+
+class HydratData():
+    def __init__(self, target):
+        self.current = 0
+        self.current_target = 0
+        self.daily_target = target
+
+hydrat_data = HydratData(2.5)
 
 
 class CustomRequestHandler(BaseHTTPRequestHandler):
@@ -22,8 +35,11 @@ class CustomRequestHandler(BaseHTTPRequestHandler):
 
         query_string = self.path.split('?')[1] if len(self.path.split('?')) > 1 else ''  # Získat řetězec dotazu
         params = parse_qs(query_string)  # Analyzovat řetězec dotazu a získat parametry GET
-        for param_name, values in params.items():
-            print(f"Param: {param_name}, Values: {values}")
+
+        if not self.path.startswith('/res') or not self.path == '/':
+            match self.path:
+                case s if s.startswith('/hydrat'):
+                    return self.process_hydrat_request(params)
 
         if self.headers.get('Accept') is None or ',' not in self.headers.get('Accept'):
             self.process_generic_request()
@@ -40,11 +56,26 @@ class CustomRequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         content_length = int(self.headers['Content-Length'])  # <--- Gets the size of data
         post_data = self.rfile.read(content_length)  # <--- Gets the data itself
-        logging.info("POST request,\nPath: %s\nHeaders:\n%s\n\nBody:\n%s\n",
-                     str(self.path), str(self.headers), post_data.decode('utf-8'))
+        decoded_data = post_data.decode('utf-8')
+        logging.info("POST request,\nPath: %s\nHeaders:\n%s\n\nBody:\n%s\n", str(self.path), str(self.headers), post_data.decode('utf-8'))
+        print("Request_data: " + decoded_data)
 
-        self._set_response()
-        self.wfile.write("POST request for {}".format(self.path).encode('utf-8'))
+    def process_hydrat_request(self, params):
+        if 'amountLitres' not in params:
+            print("Processing without amountLitres")
+            self._set_response(200, 'application/json', json.dumps(hydrat_data.__dict__))
+            return
+
+        amount_litres = 0
+        try:
+            amount_litres = float(params['amountLitres'][0])
+            print(f"Přijato {amount_litres} litrů tekutiny.")
+            hydrat_data.current += amount_litres
+
+        except Exception as e:
+            print(f"Chyba při zpracování dat requestu: {e}")
+
+        self._set_response(200, 'application/json', json.dumps(hydrat_data.__dict__))
 
     def process_html_request(self):
         filename = self.path.split('/')[1] if len(self.path.split('/')) > 1 else 'index.html'

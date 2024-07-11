@@ -31,6 +31,11 @@
         .progress-bar::before {
             content: "75%";
         }
+
+        .canvas-wrapper{
+          max-width: 300px;
+          max-height: 300px;
+        }
     </style>
   </head>
   <body>
@@ -50,22 +55,23 @@
           <span class="input-group-text">ml</span>
         </div>
         <h2>Vypité dnes</h2>
-        <div class="row p-3">
+        <div class="h1 text-primary" id="current">0 ml</div>
+        <div class="row p-3 canvas-wrapper">
           <canvas id="myChart" class="mx-auto" width="300" height="300"></canvas>
 <!--          <div class="progress-bar progress-bar-value mx-auto"></div>-->
         </div>
-        <div class="h1 text-primary" id="vypito_dnes">0 ml</div>
       </div>
 
       <div class="row mt-3">
         <div class="col">
           <h2>Přidat sklenici</h2>
-          <button class="btn btn-primary" id="add_100ml">Přidat <b>100 ml</b></button>
-          <button class="btn btn-primary" id="add_250ml">Přidat <b>250 ml</b></button>
-          <button class="btn btn-primary" id="add_500ml">Přidat <b>500 ml</b></button>
+          <button class="btn btn-primary add-btn" id="add_100ml" data-add-amount="100">Přidat <b>100 ml</b></button>
+          <button class="btn btn-primary add-btn" id="add_250ml" data-add-amount="250">Přidat <b>250 ml</b></button>
+          <button class="btn btn-primary add-btn" id="add_500ml" data-add-amount="500">Přidat <b>500 ml</b></button>
         </div>
       </div>
-
+      
+      <button class="btn btn-primary" id="myButton" data-add-amount="100">Přidat <b>100 ml</b></button>
       <div class="row mt-5">
         <div class="col">
           <h2>Historie</h2>
@@ -111,14 +117,97 @@
 
         // Funkce pro aktualizaci hodnoty progress baru
         function updateProgress(newValue) {
-            canvas.style.width = '25%';
-            canvas.style.height = '25%';
+            daily_target_element = document.getElementById('daily_target')
+            daily_target_element.value = newValue.daily_target
+
+            current_element = document.getElementById('current')
+            current_element.innerText = `${newValue.current} ml`
+            // canvas.style.width = '25%';
+            // canvas.style.height = '25%';
             chart.data.datasets[0].data[0] = newValue; // Nastavit novou hodnotu dat
             chart.update(); // Aktualizovat graf
         }
 
         // Příklad aktualizace progress baru na 50%
-        updateProgress(50);
+        updateProgress({current: 0.01, current_target: 0, daily_target: 2.5});
+
+        async function sendHydrationRequest(data, callback) {
+          const url = '/hydrat';
+
+          try {
+            const response = await fetch(url + '?' + ( new URLSearchParams( data ) ).toString(), {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              // body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+              const responseData = await response.json();
+              console.log(`Hydration request successful: ${JSON.stringify(responseData)}`);
+              callback?.(responseData);
+            } else {
+              console.error(`Error sending hydration request: ${response.status}`);
+            }
+          } catch (error) {
+            console.error(`Error sending hydration request: ${error}`);
+          }
+        }
+
+        document.getElementById('myButton').addEventListener('click', function() {
+          // Check if push notifications are supported and allowed
+          if (navigator.serviceWorker && window.PushManager && window.Notification) {
+            // Request permission to send push notifications
+            navigator.serviceWorker.getRegistration().then(function(registration) {
+              registration.pushManager.subscribe({ userVisibleOnly: true }).then(function(subscription) {
+                console.log('Push notifications are allowed.');
+                //save the push subscription in your database
+              }).catch(function(error) {
+                console.log('Error:', error);
+              });
+            });
+          }
+        });
+
+        Notification.requestPermission().then(permission => {
+          // alert(permission)
+        })
+
+        const notification = new Notification("Example notification", { 
+          body: "This is more text",
+          tag: "Come Back",
+          data: {hello: "world"},
+          icon: "https://fapcenter.g6.cz/images/adidas.jpg"
+        })
+
+        // let notification
+        // document.addEventListener("visibility-change", ()=> {
+        //   if(document.visibilityState === "hidden") {
+        //     notification = new Notification("Come back please", {
+        //       body: "Don't leave just yet :(",
+        //       tag: "Come Back"
+        //     })
+        //   } else {
+        //     notification.close()
+        //   }
+        // })
+        notification. addEventListener("close", e => {
+          console.log(e.target.data.hello)
+        })
+
+        Array.from(document.querySelectorAll('.add-btn')).forEach(e => e.addEventListener('click',function(){
+          var amountLitres = e.getAttribute('data-add-amount') / 1000
+          sendHydrationRequest({amountLitres}, updateProgress)
+        }))
+
+        sendHydrationRequest("", updateProgress)
+
+        var intervalId = window.setInterval(function(){
+          sendHydrationRequest("", updateProgress)
+        }, 10000);
+
+
 
         // Zde bude nutné implementovat JavaScript logiku pro:
         // - Načítání a ukládání denního cíle
