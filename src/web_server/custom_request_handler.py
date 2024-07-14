@@ -1,6 +1,7 @@
 import logging
 from http.server import BaseHTTPRequestHandler
 from urllib.parse import parse_qs
+from hydratation import get_ideal_hydration
 
 import os, sys, json
 
@@ -61,12 +62,13 @@ class CustomRequestHandler(BaseHTTPRequestHandler):
         print("Request_data: " + decoded_data)
 
     def process_hydrat_request(self, params):
+        hydrat_data.current_target = get_ideal_hydration()
         if 'amountLitres' not in params:
             print("Processing without amountLitres")
+            print(f"hydrat_data.__dict__: {hydrat_data.__dict__}")
             self._set_response(200, 'application/json', json.dumps(hydrat_data.__dict__))
             return
 
-        amount_litres = 0
         try:
             amount_litres = float(params['amountLitres'][0])
             print(f"Přijato {amount_litres} litrů tekutiny.")
@@ -74,7 +76,7 @@ class CustomRequestHandler(BaseHTTPRequestHandler):
 
         except Exception as e:
             print(f"Chyba při zpracování dat requestu: {e}")
-
+        print(f"hydrat_data.__dict__: {hydrat_data.__dict__}")
         self._set_response(200, 'application/json', json.dumps(hydrat_data.__dict__))
 
     def process_html_request(self):

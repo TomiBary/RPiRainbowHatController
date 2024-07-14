@@ -12,42 +12,95 @@
         body {
             background-color: #e5ddd8;
         }
-
         .daily_target {
             width: 300px;
         }
-        .progress-bar {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background:
-                    radial-gradient(closest-side, #e5ddd8 60%, transparent 80% 100%),
-                    conic-gradient(#0081ff 75%, rgba(0, 47, 255, 0) 0);
+        .graphs{
+            position: relative;
+        }
+        .progress-bar{
+          height: 300px;
+        }
+        .progress-bar-wrapper{
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translate(-50%, 0%);
+            width: 100%;
         }
 
-        .progress-bar::before {
-            content: "75%";
+        .progress-bar > svg {
+            height: 100%;
+            display: block;
         }
 
-        .canvas-wrapper{
-          max-width: 300px;
-          max-height: 300px;
+        #current-time-progress-bar > .progressbar-text{
+            -webkit-text-stroke-width: 1px;
+            -webkit-text-stroke-color: #00da18;
         }
+
+        #current-progress-bar >  .progressbar-text{
+            -webkit-text-stroke-width: 1px;
+            -webkit-text-stroke-color: #505050;
+        }
+
+        /*.progress-bar > .progressbar-text, #current-time-progress-bar{*/
+        /*    !*opacity: 0.5;*!*/
+        /*    -webkit-text-stroke-width: 1px;*/
+        /*    -webkit-text-stroke-color: black;*/
+        /*}*/
+
     </style>
   </head>
   <body>
     <header class="container-fluid bg-primary text-white py-3">
       <h1 class="text-center">Hydratační tracker</h1>
     </header>
-    <div class="pie-wrapper pie-wrapper--solid progress-88">
-      <span class="label">88<span class="smaller">%</span></span>
+
+    <button type="button" class="btn btn-primary d-none" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+      Launch static backdrop modal
+    </button>
+    <div class="container collapse show  w-50 p-5" id="collapseExample">
+      <button type="button" class="btn-close" aria-label="Close" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample"></button>
+      <ol class="list-group list-group-numbered">
+        <li class="list-group-item d-flex justify-content-between align-items-start">
+          <div class="ms-2 me-auto">
+            <div class="fw-bold">Volume</div>
+            <span class="badge text-bg-primary">Primary</span> Create settings for volume
+          </div>
+          <span class="badge text-bg-primary rounded-pill">14</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-start">
+          <div class="ms-2 me-auto">
+            <div class="fw-bold">Progress-bar</div>
+            <span class="badge text-bg-primary">Primary</span> Create progress-bar for next notification
+          </div>
+          <span class="badge text-bg-primary rounded-pill">14</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-start">
+          <div class="ms-2 me-auto">
+            <div class="fw-bold">Notification</div>
+            Allow to mute notifications and audio
+          </div>
+          <span class="badge text-bg-primary rounded-pill">14</span>
+        </li>
+      </ol>
+    </div>
+
+    <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header">
+        <img src="..." class="rounded me-2" alt="...">
+        <strong class="me-auto">Bootstrap</strong>
+        <small>11 mins ago</small>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body">
+        Hello, world! This is a toast message.
+      </div>
     </div>
 
     <main class="container mt-5 text-center">
-      <div class="row">
+      <div class="">
         <h2>Zadejte svůj denní cíl</h2>
         <div class="input-group mb-3 mx-auto daily_target">
           <label for="daily_target"></label><input class="form-control" id="daily_target" placeholder="Množství v mililitrech"
@@ -56,10 +109,13 @@
         </div>
         <h2>Vypité dnes</h2>
         <div class="h1 text-primary" id="current">0 ml</div>
-        <div class="row p-3 canvas-wrapper">
-          <canvas id="myChart" class="mx-auto" width="300" height="300"></canvas>
-<!--          <div class="progress-bar progress-bar-value mx-auto"></div>-->
+        <div class="graphs" id="graphs">
+          <div class="row p-3 progress-bar" id="current-time-progress-bar"></div>
+          <div class="progress-bar-wrapper">
+            <div class="row p-3 progress-bar" id="current-progress-bar"></div>
+          </div>
         </div>
+
       </div>
 
       <div class="row mt-3">
@@ -71,7 +127,7 @@
         </div>
       </div>
       
-      <button class="btn btn-primary" id="myButton" data-add-amount="100">Přidat <b>100 ml</b></button>
+      <button class="btn btn-primary" id="myButton" data-add-amount="100">Notification / Audio</button>
       <div class="row mt-5">
         <div class="col">
           <h2>Historie</h2>
@@ -81,39 +137,105 @@
       </div>
     </main>
 
+    <!-- Modal -->
+    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="staticBackdropLabel">Modal title</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            ...
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Understood</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script crossorigin="anonymous"
             integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
             src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/res/circle-progress.min.js" type="module"></script>
+    <script src="/res/progress.min.js" type="module"></script>
+    <script src="/resources/progress.min.js" type="module"></script>
 <!--    <script src="https://tigrr.github.io/circle-progress/js/circle-progress.js" type="module"></script>-->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <audio id="myAudio">
+      <source  src="https://www.w3schools.com/jsref/horse.ogg" type="audio/ogg">
+      <source src="https://www.w3schools.com/jsref/horse.mp3" type="audio/mpeg">
+      Your browser does not support the audio element.
+    </audio>
     <script>
-        const canvas = document.getElementById('myChart');
-        const ctx = canvas.getContext('2d');
+        const myModal = new bootstrap.Modal('#staticBackdrop')
+        function playAudio() {
+            var audioEl = document.querySelector('#myAudio')
+            audioEl.volume = 0.1
+            var promise = audioEl.play();
 
-        const chart = new Chart(ctx, {
-            type: 'doughnut', // Typ grafu - pro radiální progress bar použijte 'doughnut'
-            data: {
-                labels: ['Progress'], // Názvy segmentů (v tomto případě jen jeden)
-                datasets: [{
-                    label: 'Progress', // Označení pro segment
-                    data: [0], // Počáteční hodnota (0)
-                    backgroundColor: ['#f5f5f5'], // Barva segmentu
-                    borderColor: ['#0081FF'], // Barva okraje segmentu
-                    borderWidth: 2, // Šířka okraje segmentu
-                }]
-            },
-            options: {
-                cutoutPercentage: 80, // Velikost otvoru v grafu (0-100%)
-                legend: {
-                    display: false // Skrýt legendu
-                },
-                tooltips: {
-                    enabled: false // Vypnout tooltip
-                },
-                responsive: true // Automaticky upravit graf pro různé rozměry
+            if (promise !== undefined) {
+                promise.then(_ => {
+                    // Autoplay started!
+                }).catch(error => {
+                    bootstrap.Modal.getInstance('#staticBackdrop').show();
+                });
             }
-        });
+        }
+
+        var currentProgress = null;
+        var currentTimeProgress  = null;
+        window.onload = function onLoad() {
+            currentProgress = new ProgressBar.SemiCircle('#current-progress-bar', {
+                color: '#0081ffff',
+                duration: 3000,
+                strokeWidth: 6,
+                trailWidth: 0,
+                easing: 'easeInOut',
+                text: {
+                    value: '%',
+                    alignToBottom: true
+                },
+                step: (state, bar) => {
+                    // bar.path.setAttribute('stroke', state.color);
+                    let value = Math.round(bar.value() * 100);
+                    bar.setText(value + '%');
+
+                    bar.text.style.color = state.color;
+                },
+            });
+            currentProgress.text.style.fontSize = '5rem';
+            currentProgress.text.style.bottom = '15px';
+            //TODO delete next row
+            currentProgress.animate(0.42)
+
+            currentTimeProgress = new ProgressBar.SemiCircle('#current-time-progress-bar', {
+                color: '#00ff6588',
+                duration: 3000,
+                strokeWidth: 2,
+                trailWidth: 1,
+                easing: 'easeInOut',
+                text: {
+                    value: '%',
+                    alignToBottom: true
+                },
+                step: (state, bar) => {
+                    // bar.path.setAttribute('stroke', state.color);
+                    let value = Math.round(bar.value() * 100);
+                    bar.setText(value + '%');
+
+                    bar.text.style.color = state.color;
+                },
+            });
+            currentTimeProgress.text.style.fontSize = '3rem';
+            currentTimeProgress.text.style.bottom = '-15px';
+            // currentTimeProgress.text.style.textShadow = '3px 0 black';
+            //TODO delete next row
+            currentTimeProgress.animate(0.69)
+            playAudio()
+
+            sendHydrationRequest("", updateProgress)
+        };
 
         // Funkce pro aktualizaci hodnoty progress baru
         function updateProgress(newValue) {
@@ -122,18 +244,17 @@
 
             current_element = document.getElementById('current')
             current_element.innerText = `${newValue.current} ml`
-            // canvas.style.width = '25%';
-            // canvas.style.height = '25%';
-            chart.data.datasets[0].data[0] = newValue; // Nastavit novou hodnotu dat
-            chart.update(); // Aktualizovat graf
+            if(newValue.current - newValue.current > 0.5) {
+                playAudio()
+            }
+            console.log(currentProgress)
+            currentProgress?.animate(newValue.current / newValue.daily_target)
+            currentTimeProgress?.animate(newValue.current_target / newValue.daily_target)
         }
-
-        // Příklad aktualizace progress baru na 50%
-        updateProgress({current: 0.01, current_target: 0, daily_target: 2.5});
 
         async function sendHydrationRequest(data, callback) {
           const url = '/hydrat';
-
+          playAudio()
           try {
             const response = await fetch(url + '?' + ( new URLSearchParams( data ) ).toString(), {
               method: 'GET',
@@ -156,6 +277,7 @@
         }
 
         document.getElementById('myButton').addEventListener('click', function() {
+            playAudio()
           // Check if push notifications are supported and allowed
           if (navigator.serviceWorker && window.PushManager && window.Notification) {
             // Request permission to send push notifications
@@ -200,8 +322,6 @@
           var amountLitres = e.getAttribute('data-add-amount') / 1000
           sendHydrationRequest({amountLitres}, updateProgress)
         }))
-
-        sendHydrationRequest("", updateProgress)
 
         var intervalId = window.setInterval(function(){
           sendHydrationRequest("", updateProgress)
