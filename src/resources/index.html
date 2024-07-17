@@ -303,18 +303,18 @@
           icon: "https://fapcenter.g6.cz/images/adidas.jpg"
         })
 
-        // let notification
-        // document.addEventListener("visibility-change", ()=> {
-        //   if(document.visibilityState === "hidden") {
-        //     notification = new Notification("Come back please", {
-        //       body: "Don't leave just yet :(",
-        //       tag: "Come Back"
-        //     })
-        //   } else {
-        //     notification.close()
-        //   }
-        // })
-        notification. addEventListener("close", e => {
+        let notification2
+        document.addEventListener("visibility-change", ()=> {
+          if(document.visibilityState === "hidden") {
+            notification2 = new Notification("Come back please", {
+              body: "Don't leave just yet :(",
+              tag: "Come Back"
+            })
+          } else {
+            notification2.close()
+          }
+        })
+        notification2. addEventListener("close", e => {
           console.log(e.target.data.hello)
         })
 

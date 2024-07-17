@@ -21,8 +21,7 @@ def fetch_prices(api_key, symbols=None, mock=False):
     params = parameters
     headers['X-CMC_PRO_API_KEY'] = api_key
     if symbols is not None:
-        params[
-            'symbol'] = symbols  # TODO check if this is correct (if symbols are not list or dict etc.) if it has correct format
+        params['symbol'] = symbols  # TODO check if this is correct (if symbols are not list or dict etc.) if it has correct format
     if not mock:
         response = requests.get(url, headers=headers, params=params)
 
