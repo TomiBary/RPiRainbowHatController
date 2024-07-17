@@ -1,6 +1,11 @@
 import logging
 from http.server import BaseHTTPRequestHandler
 from urllib.parse import parse_qs
+
+#Add parent directory to path / context
+import sys
+sys.path.append(sys.path[0] + '/..')
+
 from hydratation import get_ideal_hydration
 
 import os, sys, json

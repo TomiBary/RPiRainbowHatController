@@ -18,18 +18,15 @@ def check_hydration():
         # TODO run callback function that updates current_hydration and ideal_hydration
 
 def get_ideal_hydration():
-    cas = datetime.datetime.now()
-    mins_from_start = (cas.hour - start_time) * 60 + cas.minute  #pocet minut od 10h
+    time = datetime.datetime.now()
+    mins_from_start = (time.hour - start_time) * 60 + time.minute  #pocet minut od 10h
 
     ideal_hydration = hydration_target * mins_from_start / ((end_time - start_time) * 60)  #
     ideal_hydration = max(0, min(ideal_hydration, hydration_target))  # clamp(0, idealni_vypito, hydration_target)
-    print(f"Aktualni optimalni hydratace: {ideal_hydration}")
+    # print(f"Aktualni optimalni hydratace: {ideal_hydration}")
     return ideal_hydration
 
 # # Uložení dat do CSV souboru
 #     with open("hydratace.csv", "a", newline="") as csvfile:
 #       writer = csv.writer(csvfile)
 #       writer.writerow([cas_nyni.strftime("%Y-%m-%d"), cil_hydratace, vypito])
-
-print(datetime.datetime.now().hour)
-check_hydration()
