@@ -2,6 +2,7 @@ import datetime
 import json
 import os
 import socket
+import csv
 from hydrat_data import HydratData, Config
 
 HOST = "127.0.0.1"  # The server's hostname or IP address
@@ -9,6 +10,14 @@ PORT = 65432  # The port used by the server
 FILE_PATH = "resources/hydrat.csv"
 config = Config()  # Load static config
 
+
+def send_data():
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+        s.sendall(b"Hello, world")
+        data = s.recv(1024)
+
+    print(f"Received {data!r}")
 
 def get_ideal_hydration():
     time = datetime.datetime.now()
