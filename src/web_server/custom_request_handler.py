@@ -19,6 +19,7 @@ def get_file(filename):
         file = f.read()
     return file
 
+#TODO move to hydratation or own file
 class HydratData():
     def __init__(self, target):
         self.current = 0

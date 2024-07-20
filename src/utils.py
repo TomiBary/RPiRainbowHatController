@@ -1,54 +1,43 @@
-from math import log10, floor
-import crypto
-from scroll_msg import ScrollMessage
-import yaml
+import os
 
-import rainbowhat as rh
+def play_sound(sound_name=None):
+    """
+        Play a sound
+        sounds are located in /System/Library/Sounds or ~/Library/Sounds
+    """
 
-display_digits = 4
-space = ' '
+    default_sound = '/System/Library/Sounds/Ping.aiff'
+    sounds_dir = '/System/Library/Sounds'
+    #check if sound_name contains .
+    if not sound_name is None and not '.' in sound_name:
+        sound_name = sound_name + '.aiff'
 
+    sound_to_play_path = os.path.join(sounds_dir, sound_name)
 
-def format_price(price: float):
-    # Define the suffixes for different magnitudes
-    suffixes = ['', 'K', 'M', 'G', 'T', 'P']
+    if not os.path.exists(sound_to_play_path):
+        files = [f for f in os.listdir(sounds_dir) if os.path.isfile(os.path.join(sounds_dir, f))]
+        print(f'Sound: "{sound_to_play_path}" does not exist')
+        print(f'Available sounds: {files}')
+        os.system(f"afplay {default_sound}")
+        return
 
-    # Find the index of the suffix to use
-    magnitude = max(0, min(len(suffixes) - 1, int(floor(log10(price) / 3))))
+    os.system(f"afplay {sound_to_play_path}")
+    print(f'Playing sound: {sound_to_play_path}')
 
-    switcher = {
-        0: 4,
-        1: 4,
-        2: 3,
-        3: 2,
-        4: 1,
-    }
-    whole_part = len(str(price).split('.')[0])
-    return f"{price / 10 ** (3 * magnitude):.{switcher.get(whole_part, 0)}f}{suffixes[magnitude]}"
-    # return '{:.{prec}f}'.format(price, prec=switcher.get(whole_part, 0))
+def display_notification(message,title=None,subtitle=None,soundname=None):
+    """
+        Display an OSX notification with message title an subtitle
+        sounds are located in /System/Library/Sounds or ~/Library/Sounds
+    """
+    title_part = ''
+    if not title is None:
+        title_part = f'with title "{title}"'
+    subtitle_part = ''
+    if not subtitle is None:
+        subtitle_part = f'subtitle "{subtitle}"'
+    soundname_part = ''
+    if not soundname is None:
+        soundname_part = f'sound name "{soundname}"'
 
-
-def format_to_price_list(prices):
-    return [f"{format_price(price)} {coin}" for coin, price in prices.items()]
-
-
-def get_display_text(prices):
-    formatted_prices = format_to_price_list(prices)
-    formatted_prices.append('-')
-    spaces4 = space * 2
-    return spaces4 + spaces4.join(formatted_prices)
-
-
-def get_crypto_price_message():
-    with open('private.yml', 'r') as f:
-        api_key = yaml.safe_load(f)['API_KEY_PROD']
-
-    prices = crypto.fetch_prices(api_key)
-    txt = get_display_text(prices)
-    return ScrollMessage(txt)
-
-
-def rh_display_text(text="    "):
-    rh.display.print_number_str(text)
-    rh.display.show()
-    # pass
+    apple_script_notification = 'display notification "{0}" {1} {2} {3}'.format(message,title_part,subtitle_part,soundname_part)
+    os.system(f"osascript -e '{apple_script_notification}'")

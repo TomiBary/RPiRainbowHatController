@@ -1,4 +1,4 @@
-from utils import get_crypto_price_message, rh_display_text
+from rh_utils import get_crypto_price_message, rh_display_text
 from datetime import datetime as dt
 import time
 import rh_project as p
