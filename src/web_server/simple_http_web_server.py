@@ -1,6 +1,6 @@
 import logging
 from http.server import HTTPServer
-from custom_request_handler import CustomRequestHandler
+from web_server.custom_request_handler import CustomRequestHandler
 
 
 def run(server_class=HTTPServer, handler_class=CustomRequestHandler, port=8080):
@@ -14,13 +14,3 @@ def run(server_class=HTTPServer, handler_class=CustomRequestHandler, port=8080):
         pass
     httpd.server_close()
     logging.info('Stopping httpd...\n')
-
-
-if __name__ == '__main__':
-    from sys import argv
-
-    if len(argv) == 2:
-        print('all args ' + str(argv))
-        run(port=int(argv[1]))
-    else:
-        run()

@@ -5,10 +5,9 @@ from urllib.parse import parse_qs
 #Add parent directory to path / context
 import sys
 sys.path.append(sys.path[0] + '/..')
-
-from hydratation import get_ideal_hydration
-
+import hydratation as h
 import os, sys, json
+
 
 def get_file(filename):
     # Spojit rodičovský adresář s relativní cestou k souboru
@@ -18,15 +17,6 @@ def get_file(filename):
     with open(full_file_path, 'r', encoding='utf-8') as f:
         file = f.read()
     return file
-
-#TODO move to hydratation or own file
-class HydratData():
-    def __init__(self, target):
-        self.current = 0
-        self.current_target = 0
-        self.daily_target = target
-
-hydrat_data = HydratData(2.5)
 
 
 class CustomRequestHandler(BaseHTTPRequestHandler):
@@ -68,22 +58,19 @@ class CustomRequestHandler(BaseHTTPRequestHandler):
         print("Request_data: " + decoded_data)
 
     def process_hydrat_request(self, params):
-        hydrat_data.current_target = get_ideal_hydration()
-        if 'amountLitres' not in params:
-            print("Processing without amountLitres")
-            print(f"hydrat_data.__dict__: {hydrat_data.__dict__}")
-            self._set_response(200, 'application/json', json.dumps(hydrat_data.__dict__))
-            return
+        hydrat_data = h.get_hydrat_data()
+        if 'amountLitres' in params:
+            try:
+                amount_litres = float(params['amountLitres'][0])
+                print(f"Přijato {amount_litres} litrů tekutiny.")
+                hydrat_data.current += amount_litres
+            except Exception as e:
+                print(f"Chyba při zpracování dat requestu: {e}")
 
-        try:
-            amount_litres = float(params['amountLitres'][0])
-            print(f"Přijato {amount_litres} litrů tekutiny.")
-            hydrat_data.current += amount_litres
-
-        except Exception as e:
-            print(f"Chyba při zpracování dat requestu: {e}")
-        print(f"hydrat_data.__dict__: {hydrat_data.__dict__}")
-        self._set_response(200, 'application/json', json.dumps(hydrat_data.__dict__))
+        h.save_to_csv(hydrat_data)
+        hydrat_data_json = hydrat_data.to_json(False, [])
+        print(f"hydrat_data_json: {hydrat_data_json}")
+        self._set_response(200, 'application/json', hydrat_data_json)
 
     def process_html_request(self):
         filename = self.path.split('/')[1] if len(self.path.split('/')) > 1 else 'index.html'
