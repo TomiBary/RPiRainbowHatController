@@ -7,9 +7,8 @@ from hydrat_data import HydratData, Config
 
 HOST = "127.0.0.1"  # The server's hostname or IP address
 PORT = 65432  # The port used by the server
-FILE_PATH = "resources/hydrat.csv"
+FILE_PATH = os.path.join(os.path.dirname(__file__), "resources/hydrat.csv")
 config = Config()  # Load static config
-
 
 def send_data():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -39,6 +38,9 @@ def load_all_from_csv():
 
 
 def save_to_csv(data: HydratData):
+    print("abs path" , os.path.abspath(os.path.dirname(__file__)))
+    #print cwd
+    print("cwd ",os.getcwd())
     all_rows = load_all_from_csv()
     today_hydrat_data = try_get_today_hydrat_data(all_rows)
     if today_hydrat_data:
